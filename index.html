@@ -1,453 +1,211 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="vi">
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gallery Ảnh Của Tôi</title>
+    <title>Tính điểm Garena - GameVerse</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500&display=swap');
-
-        :root {
-            --bg: #0a0a0a;
-            --text: #f0f0f0;
-            --accent: #d4af77;
+        .calc-container {
+            max-width: 1100px;
+            margin: 120px auto 60px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+ 
+        @media (max-width: 800px) {
+            .calc-container {
+                grid-template-columns: 1fr;
+                margin-top: 100px;
+            }
         }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
+ 
+        .panel {
+            background: rgba(20, 25, 40, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
-
-        header {
-            position: sticky;
-            top: 0;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 100;
-            padding: 1.5rem 5%;
-            border-bottom: 1px solid rgba(212, 175, 119, 0.15);
+ 
+        .panel-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--text-light);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
+            gap: 12px;
         }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            letter-spacing: -2px;
-            color: var(--accent);
-            text-shadow: 0 0 30px rgba(212, 175, 119, 0.3);
+ 
+        .panel-title i {
+            color: var(--accent-cyan);
         }
-
-        .search-container {
-            position: relative;
-            width: 320px;
-            max-width: 100%;
+ 
+        .form-group {
+            margin-bottom: 20px;
         }
-
-        #search {
+ 
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+        }
+ 
+        .form-input {
             width: 100%;
-            padding: 14px 20px 14px 50px;
-            background: #1a1a1a;
-            border: 1px solid rgba(212, 175, 119, 0.2);
-            border-radius: 50px;
-            color: var(--text);
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-family: inherit;
             font-size: 1rem;
             transition: all 0.3s ease;
         }
-
-        #search:focus {
+ 
+        .form-input:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(212, 175, 119, 0.15);
+            background: rgba(0, 0, 0, 0.5);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 4px rgba(0, 240, 255, 0.15);
         }
-
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #888;
-            font-size: 1.2rem;
-        }
-
-        .gallery {
-            padding: 4rem 5%;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .photo-card {
-            position: relative;
-            overflow: hidden;
+ 
+        .result-area {
+            min-height: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            background: #111;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            opacity: 0;
-            transform: translateY(40px);
-            cursor: pointer;
-        }
-
-        .photo-card.loaded {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .photo-card:hover {
-            transform: scale(1.04) translateY(-8px);
-            box-shadow: 0 20px 50px rgba(212, 175, 119, 0.2);
-        }
-
-        .photo-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            display: block;
-        }
-
-        .photo-card:hover img {
-            transform: scale(1.12);
-        }
-
-        .photo-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.85));
-            padding: 1.5rem 1.2rem 1.2rem;
-            transform: translateY(30px);
-            opacity: 0;
-            transition: all 0.4s ease;
-        }
-
-        .photo-card:hover .photo-overlay {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .photo-overlay h3 {
-            font-size: 1.1rem;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.7);
-        }
-
-        /* Lightbox */
-        #lightbox {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 2rem;
-            backdrop-filter: blur(10px);
-        }
-
-        #lightbox.active {
-            display: flex;
-        }
-
-        .lightbox-content {
+            text-align: center;
+            padding: 30px;
+            transition: all 0.3s ease;
             position: relative;
-            max-width: 95vw;
-            max-height: 95vh;
-            background: #111;
-            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 0 80px rgba(212, 175, 119, 0.4);
-            animation: lightboxPop 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
-
-        @keyframes lightboxPop {
-            from { transform: scale(0.7); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+ 
+        .result-area.has-result {
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.05);
+            background: transparent;
         }
-
-        .lightbox-img {
+ 
+        #pResultImg {
             max-width: 100%;
-            max-height: 80vh;
-            display: block;
-            object-fit: contain;
-        }
-
-        .lightbox-info {
-            padding: 1.5rem 2rem;
-            text-align: center;
-            background: rgba(0,0,0,0.7);
-        }
-
-        .lightbox-info h3 {
-            font-size: 1.4rem;
-            color: var(--accent);
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            z-index: 10;
-        }
-
-        .close-btn:hover {
-            background: #d4af77;
-            color: #000;
-            transform: rotate(90deg);
-        }
-
-        .nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 60px;
-            height: 60px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .nav-btn:hover {
-            background: var(--accent);
-            color: #000;
-        }
-
-        .prev-btn { left: 30px; }
-        .next-btn { right: 30px; }
-
-        .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.2rem;
-            color: var(--accent);
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             display: none;
-            z-index: 2000;
-        }
-
-        footer {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .gallery {
-                padding: 2rem 4%;
-                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                gap: 1.5rem;
-            }
-            header {
-                padding: 1rem 5%;
-            }
         }
     </style>
 </head>
+ 
 <body>
-
-    <header>
-        <h1>Gallery Ảnh Của Tôi</h1>
-        <div class="search-container">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search" placeholder="Tìm kiếm theo tên ảnh..." autocomplete="off">
+    <div class="bg-animated"></div>
+ 
+    <!-- Navbar -->
+    <nav class="navbar" id="main-navbar">
+        <a href="index.html" class="nav-logo">
+            <span class="logo-icon">🎮</span> GAMEVERSE
+        </a>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Trang chủ</a>
+            <a href="livestream.html">Livestream</a>
+            <a href="videos.html">Video</a>
+            <a href="forum.html">Diễn đàn</a>
+            <a href="tournament.html">Giải đấu</a>
+            <a href="tinh-diem.html" class="active">Tính điểm</a>
         </div>
-    </header>
-
-    <main>
-        <div class="gallery" id="gallery"></div>
-    </main>
-
-    <!-- Lightbox -->
-    <div id="lightbox">
-        <div class="lightbox-content">
-            <span class="close-btn" id="close-btn">×</span>
-            <button class="nav-btn prev-btn" id="prev-btn">‹</button>
-            <img id="lightbox-img" class="lightbox-img" alt="">
-            <div class="lightbox-info">
-                <h3 id="lightbox-title"></h3>
+        <div class="nav-auth">
+            <!-- Will be updated by api.js -->
+        </div>
+        <div class="nav-hamburger" id="nav-hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+ 
+    <div class="calc-container">
+        <!-- Form Panel -->
+        <div class="panel observe-animate">
+            <h2 class="panel-title">🔢 Cấu hình bảng điểm</h2>
+            <form id="publicPointsForm">
+                <div class="form-group">
+                    <label>UID Người chơi (ID Game):</label>
+                    <input type="text" id="pUid" class="form-input" required placeholder="Nhập ID tài khoản Garena">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div class="form-group">
+                        <label>Giờ thi đấu:</label>
+                        <input type="text" id="pTime" class="form-input" required placeholder="23:30">
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày (1-31):</label>
+                        <input type="number" id="pDate" class="form-input" placeholder="Hôm nay">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mẫu bảng điểm:</label>
+                    <select id="pTemplate" class="form-input">
+                        <option value="vvd1">Bảng VVD-1 (Phổ thông)</option>
+                        <option value="vvd2">Bảng VVD-2 (2 cột)</option>
+                        <option value="vvd3">Bảng VVD-3 (Gọn)</option>
+                        <option value="vvd4">Bảng VVD-4 (Đặc biệt)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Bỏ trận thứ (Ví dụ: 3,4):</label>
+                    <input type="text" id="pExclude" class="form-input" placeholder="Để trống nếu tính hết">
+                </div>
+                <button type="submit" id="pBtnSubmit" class="btn btn-primary w-full" style="padding:14px; font-weight:600; margin-top:10px;">
+                    🚀 Bắt đầu tính toán
+                </button>
+            </form>
+        </div>
+ 
+        <!-- Result Panel -->
+        <div class="panel observe-animate">
+            <h2 class="panel-title">🖼️ Kết quả bảng điểm</h2>
+            <div id="pResultArea" class="result-area">
+                <div id="pPlaceholderText" style="color:var(--text-secondary);">
+                    <div style="font-size:3rem; margin-bottom:15px;">📊</div>
+                    Nhập thông tin bên trái và nhấn nút tính để xem kết quả.<br>
+                    Hệ thống sẽ tự động quét dữ liệu từ Garena API.
+                </div>
+                <img id="pResultImg">
+                <a id="pDownloadBtn" class="btn btn-primary" style="display:none; margin-top:20px;">📥 Tải ảnh về máy</a>
             </div>
-            <button class="nav-btn next-btn" id="next-btn">›</button>
         </div>
     </div>
-
-    <div class="loading" id="loading">Đang tải...</div>
-
-    <footer>
-        © 2026 Gallery Ảnh Của Tôi • Thiết kế hiện đại • Dark Mode
+ 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">🎮 GAMEVERSE</div>
+                <p>Cộng đồng gaming hàng đầu Việt Nam. Tính điểm Garena Free Fire nhanh nhất, chính xác nhất.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Dịch vụ</h4>
+                <a href="tinh-diem.html">Tính điểm Garena</a>
+                <a href="tournament.html">Tổ chức giải đấu</a>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2026 GameVerse.</div>
     </footer>
-
-    <script>
-        // ==================== DỮ LIỆU ẢNH ====================
-        const photos = [
-            { id: 1, url: "https://picsum.photos/id/1015/800/1200", title: "Bình minh trên biển" },
-            { id: 2, url: "https://picsum.photos/id/160/1200/800", title: "Rừng núi hùng vĩ" },
-            { id: 3, url: "https://picsum.photos/id/201/800/1000", title: "Thành phố đêm lung linh" },
-            { id: 4, url: "https://picsum.photos/id/29/900/600", title: "Hoa anh túc đỏ rực" },
-            { id: 5, url: "https://picsum.photos/id/1016/700/900", title: "Cánh đồng lúa chín vàng" },
-            { id: 6, url: "https://picsum.photos/id/133/800/1100", title: "Sông nước miền Tây" },
-            { id: 7, url: "https://picsum.photos/id/201/600/900", title: "Núi tuyết trắng xóa" },
-            { id: 8, url: "https://picsum.photos/id/251/1100/700", title: "Sa mạc cát vàng" },
-            { id: 9, url: "https://picsum.photos/id/30/800/800", title: "Rừng thu lá đỏ" },
-            { id: 10, url: "https://picsum.photos/id/318/700/1000", title: "Đảo ngọc giữa biển" },
-            { id: 11, url: "https://picsum.photos/id/1018/900/700", title: "Phố cổ Hà Nội" },
-            { id: 12, url: "https://picsum.photos/id/160/800/900", title: "Chợ đêm Sài Gòn" },
-            { id: 13, url: "https://picsum.photos/id/201/1000/700", title: "Cầu vượt sông Hàn" },
-            { id: 14, url: "https://picsum.photos/id/29/700/1100", title: "Hoàng hôn trên hồ" }
-        ];
-
-        let filteredPhotos = [...photos];
-        let currentIndex = 0;
-
-        const gallery = document.getElementById('gallery');
-        const searchInput = document.getElementById('search');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        const lightboxTitle = document.getElementById('lightbox-title');
-        const closeBtn = document.getElementById('close-btn');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-
-        // ==================== RENDER GALLERY ====================
-        function renderGallery() {
-            gallery.innerHTML = '';
-
-            filteredPhotos.forEach((photo, index) => {
-                const card = document.createElement('div');
-                card.className = 'photo-card';
-                card.innerHTML = `
-                    <img src="${photo.url}" alt="${photo.title}" loading="lazy">
-                    <div class="photo-overlay">
-                        <h3>${photo.title}</h3>
-                    </div>
-                `;
-                
-                // Click mở lightbox
-                card.addEventListener('click', () => {
-                    currentIndex = index;
-                    openLightbox();
-                });
-
-                gallery.appendChild(card);
-
-                // Animation fade-in + zoom
-                setTimeout(() => {
-                    card.classList.add('loaded');
-                }, 50 + index * 60);
-            });
-        }
-
-        // ==================== LIGHTBOX ====================
-        function openLightbox() {
-            updateLightbox();
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function updateLightbox() {
-            const photo = filteredPhotos[currentIndex];
-            lightboxImg.src = photo.url;
-            lightboxTitle.textContent = photo.title;
-        }
-
-        function closeLightbox() {
-            lightbox.classList.remove('active');
-            document.body.style.overflow = 'visible';
-        }
-
-        // Navigation
-        function goPrev() {
-            currentIndex = (currentIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
-            updateLightbox();
-        }
-
-        function goNext() {
-            currentIndex = (currentIndex + 1) % filteredPhotos.length;
-            updateLightbox();
-        }
-
-        // ==================== TÌM KIẾM ====================
-        searchInput.addEventListener('input', () => {
-            const term = searchInput.value.toLowerCase().trim();
-            
-            filteredPhotos = photos.filter(photo => 
-                photo.title.toLowerCase().includes(term)
-            );
-            
-            renderGallery();
-        });
-
-        // ==================== EVENT LISTENERS ====================
-        closeBtn.addEventListener('click', closeLightbox);
-        prevBtn.addEventListener('click', goPrev);
-        nextBtn.addEventListener('click', goNext);
-
-        // Đóng lightbox bằng phím ESC
-        document.addEventListener('keydown', (e) => {
-            if (!lightbox.classList.contains('active')) return;
-            
-            if (e.key === 'Escape') {
-                closeLightbox();
-            }
-            if (e.key === 'ArrowLeft') goPrev();
-            if (e.key === 'ArrowRight') goNext();
-        });
-
-        // Đóng khi click ngoài ảnh
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-        });
-
-        // ==================== KHỞI ĐỘNG ====================
-        window.onload = () => {
-            renderGallery();
-            
-            // Hiệu ứng loading giả (chỉ để demo mượt)
-            const loading = document.getElementById('loading');
-            setTimeout(() => {
-                loading.style.display = 'none';
-            }, 800);
-        };
-    </script>
+ 
+    <script src="js/api.js"></script>
+    <script src="js/points.js"></script>
+    <script src="js/app.js"></script>
 </body>
-</html>
